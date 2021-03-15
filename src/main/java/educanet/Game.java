@@ -10,24 +10,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Game {
-    private static final int MAZE_NUMBER = MazeGen.generateMaze(100);//4; //number of file, to read from -> mazeCode
+    private static final int MAZE_NUMBER = MazeGen.generateMaze(10);//4; //number of file, to read from -> mazeCode
     private static String mazeCode; //maze code. determines colors
 
     private static Square[][] maze;  //array of squares
     private static int mazeRows; //number of rows
     private static int mazeCols; //Number of columns
 
-    private static float squareSize; //Square size | 0.2f is just temp
+    private static float squareSize; //Square size
 
     public static void init(long window) {
 
         // get the maze code
-        getMazeCode(MAZE_NUMBER);
+        getMazeCode();
         if(mazeCode != null) {
             // calculate maze dimensions (Width & Height)
             getMazeDims();
             //square size scaling (by width)
-            squareSize = 1.0f/(mazeCols/2);
+            squareSize = 1.0f/((float)mazeCols/2);
             // init maze with proper sizing
             maze = new Square[mazeRows][mazeCols];
             //removes newline chars from mazeCode
@@ -129,8 +129,8 @@ public class Game {
     }
 
     /** gets the selected maze code */
-    private static void getMazeCode(int number) {
-        String path = "src/main/resources/Maze Codes/maze" + number; //path to maze file
+    private static void getMazeCode() {
+        String path = "src/main/resources/Maze Codes/maze" + MAZE_NUMBER; //path to maze file
         File mazeFile = new File(path);
 
         if(mazeFile.exists() && mazeFile.canRead()) //checks if maze file exists and is readable
@@ -157,18 +157,4 @@ public class Game {
         System.out.println("\nEdited Maze Code: " + mazeCode); //debug
     }
 
-    /** prints out the maze with color values interpreted in binary */
-    public static void testMaze() {
-        //test maze sizing
-        System.out.println("");
-        int counter = 0;
-        for (int y = 0; y < maze.length; y++) {
-            for (int x = 0; x < maze[y].length; x++) {
-                //System.out.print("X");
-                System.out.print(mazeCode.charAt(counter));
-                counter++;
-            }
-            System.out.println();
-        }
-    }
 }
