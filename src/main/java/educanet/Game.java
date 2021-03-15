@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Game {
-    private static final int MAZE_NUMBER = MazeGen.generateMaze(20);//4; //number of file, to read from -> mazeCode
+    private static final int MAZE_NUMBER = MazeGen.generateMaze(100);//4; //number of file, to read from -> mazeCode
     private static String mazeCode; //maze code. determines colors
 
     private static Square[][] maze;  //array of squares
