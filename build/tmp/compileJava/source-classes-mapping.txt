@@ -4,7 +4,9 @@ educanet/Shaders.java
  educanet.Shaders
 educanet/models/Square.java
  educanet.models.Square
-educanet/Game.java
- educanet.Game
 educanet/Main.java
  educanet.Main
+educanet/Game.java
+ educanet.Game
+educanet/utils/MazeGen.java
+ educanet.utils.MazeGen
