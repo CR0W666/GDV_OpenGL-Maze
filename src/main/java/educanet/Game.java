@@ -4,6 +4,7 @@ import educanet.models.Square;
 import educanet.utils.Color;
 import educanet.utils.ColorsList;
 import educanet.utils.FileUtils;
+import educanet.utils.MazeGen;
 import org.lwjgl.opengl.GL33;
 
 import java.io.File;
@@ -11,17 +12,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Game {
-    private static final int MAZE_NUMBER = 8;//MazeGen.generateMaze(100); //number of file, to read from -> mazeCode
-    private static String mazeCode; //maze code. determines colors
+    private static final int MAZE_NUMBER = 8;//MazeGen.generateMaze(100);//8; //number of file, to read from -> mazeCode
+    private static String shader = "RainbowRoad";
+    private static int count = 0;
+    private static final int updateFrequency = 1;
 
+
+    private static String mazeCode; //maze code. determines colors
     private static Square[][] maze;  //array of squares
     private static int mazeRows; //number of rows
     private static int mazeCols; //Number of columns
-
     private static float squareSize; //Square size
+    private static final Color color = new Color(); //Color we are going to use
 
-    private static Color color = new Color(); //Color we are going to use
-    private static String shader = "RainbowRoad";
 
     public static void init(long window) {
 
@@ -57,16 +60,19 @@ public class Game {
     }
 
         public static void update ( long window){
-        if(maze != null) {
-            for (int y = 0; y < mazeRows; y++) {
-                for (int x = 0; x < mazeCols ; x++) {
-                    Square currentSquare = maze[y][x];
+        count++;
+        if(count == updateFrequency) {
+            if (maze != null) {
+                for (int y = 0; y < mazeRows; y++) {
+                    for (int x = 0; x < mazeCols; x++) {
+                        Square currentSquare = maze[y][x];
 
-                    updateSquareColor(currentSquare);
+                        updateSquareColor(currentSquare);
+                    }
                 }
             }
+            count=0;
         }
-
     }
 
     private static void updateSquareColor (Square square){
