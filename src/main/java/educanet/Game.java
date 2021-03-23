@@ -1,8 +1,9 @@
 package educanet;
 
 import educanet.models.Square;
+import educanet.utils.Color;
+import educanet.utils.ColorsList;
 import educanet.utils.FileUtils;
-import educanet.utils.MazeGen;
 import org.lwjgl.opengl.GL33;
 
 import java.io.File;
@@ -10,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Game {
-    private static final int MAZE_NUMBER = MazeGen.generateMaze(10);//4; //number of file, to read from -> mazeCode
+    private static final int MAZE_NUMBER = 8;//MazeGen.generateMaze(100); //number of file, to read from -> mazeCode
     private static String mazeCode; //maze code. determines colors
 
     private static Square[][] maze;  //array of squares
@@ -18,6 +19,9 @@ public class Game {
     private static int mazeCols; //Number of columns
 
     private static float squareSize; //Square size
+
+    private static Color color = new Color(); //Color we are going to use
+    private static String shader = "RainbowRoad";
 
     public static void init(long window) {
 
@@ -39,38 +43,62 @@ public class Game {
         Shaders.initShaders();
     }
 
-    public static void render(long window) {
+
+        public static void render ( long window){
         GL33.glUseProgram(Shaders.shaderProgramId);
-        if(maze != null) {
+
+        if (maze != null) {
             for (int y = 0; y < mazeRows; y++) {
-                for (int x = 0; x < mazeCols ; x++) {
+                for (int x = 0; x < mazeCols; x++) {
                     drawSquare(maze[y][x]); //the unreadable OpenGlDrawElements part
                 }
             }
         }
     }
 
-    public static void update(long window) {
+        public static void update ( long window){
+        if(maze != null) {
+            for (int y = 0; y < mazeRows; y++) {
+                for (int x = 0; x < mazeCols ; x++) {
+                    Square currentSquare = maze[y][x];
+
+                    updateSquareColor(currentSquare);
+                }
+            }
+        }
 
     }
 
-    /** Fills the maze array with squares */
-    private static void makeSquares() {
-        boolean color; //determines square color
-        int mazeCodePos = 0; //position in mazeCode string
-        int binaryValue; //int value of mazeCode color char
+    private static void updateSquareColor (Square square){
+        switch (shader) {
+            case "RainbowRoad":
+                if(square.path) {
+                    square.setColor(ColorsList.rainbowRoad(square));
+                }
+                break;
+            case "flip":
+                //todo
+                break;
+            default:
+                break;
+        }
 
+    }
+
+
+
+        /** Fills the maze array with squares */
+        private static void makeSquares () {
+        //determines square color
+        int pos = 0; //position in mazeCode string
         float mazeX = -1.0f; //starting point on X axis
-        float mazeY = 1.0f-squareSize; //starting point on Y axis
+        float mazeY = 1.0f - squareSize; //starting point on Y axis
 
         for (int y = 0; y < mazeRows; y++) {
             for (int x = 0; x < mazeCols; x++) {
-                binaryValue = Integer.parseInt(String.valueOf(mazeCode.charAt(mazeCodePos))); //reads the string and saves the value at mazeCodePos position
-                mazeCodePos++;
 
-                color = binaryValue == 1; //boolean condition
-
-                Square square = newSquare(mazeX, mazeY, color); //creates square
+                Square square = newSquare(mazeX, mazeY, pos); //creates square
+                pos++;
                 maze[y][x] = square; //saves in array
 
                 mazeX += squareSize; //moves in X
@@ -80,81 +108,66 @@ public class Game {
         }
     }
 
-    /** Creates new Square */
-    private static Square newSquare(float x, float y, boolean color) {
+        /** Creates new Square */
+        private static Square newSquare ( float x, float y, int pos){
 
-        int[] indices = {
-                0, 1, 3, // First triangle
-                1, 2, 3 // Second triangle
-        };
+            boolean path = mazeCode.charAt(pos) == '1';
+            Color color = (path) ? getColor("white") : getColor("black");
 
-        float[] vertices = {  //square origin point is in Bottom Left
-                x + squareSize  ,y + squareSize, 0.0f, // 0 -> Top    Right
-                x + squareSize  ,y             , 0.0f, // 1 -> Bottom Right
-                x               ,y             , 0.0f, // 2 -> Bottom Left
-                x               ,y + squareSize, 0.0f, // 3 -> Top    Left
-        }; //some help from Filip Makrlík
+            return new Square(x, y, squareSize, color, path);
+        }
 
-       return new Square(vertices, indices, (color) ? getColor("white") : getColor("black"));
-    }
-
-    /** draws the square using OpenGL*/
-    public static void drawSquare(Square square) {
+        /** draws the square using OpenGL*/
+        public static void drawSquare (Square square){
         if (square != null) {
-            GL33.glBindVertexArray(square.vaoId);
-            GL33.glDrawElements(GL33.GL_TRIANGLES, square.indices.length, GL33.GL_UNSIGNED_INT, 0);
+            square.draw();
         }
     }
 
-    /** Returns selected color array*/
-    public static float[] getColor(String color) {
-        float[] whiteColor = {
-                1.0f, 1.0f, 1.0f,
-                1.0f, 1.0f, 1.0f,
-                1.0f, 1.0f, 1.0f,
-                1.0f, 1.0f, 1.0f,
-        };
+        /** Returns selected color array*/
+        public static Color getColor (String colorName){
 
-        float[] blackColor = {
-                0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f,
-        };
-
-        if ("black".equals(color)) {
-            return blackColor;
+        if ("black".equals(colorName)) {
+            color.setColor(ColorsList.BLACK);
+            return color;
         }
-        return whiteColor;
+        color.setColor(ColorsList.WHITE);
+        return color;
     }
 
-    /** gets the selected maze code */
-    private static void getMazeCode() {
+        /** gets the selected maze code */
+        private static void getMazeCode () {
         String path = "src/main/resources/Maze Codes/maze" + MAZE_NUMBER; //path to maze file
         File mazeFile = new File(path);
 
-        if(mazeFile.exists() && mazeFile.canRead()) //checks if maze file exists and is readable
+        if (mazeFile.exists() && mazeFile.canRead()) //checks if maze file exists and is readable
             mazeCode = FileUtils.readFile(path);
 
         System.out.println("Maze Code:\n" + mazeCode); //debug print
     }
 
-    /** calculates the maze dimensions (Width & Height) */
-    public static void getMazeDims() {
+        /** calculates the maze dimensions (Width & Height) */
+        public static void getMazeDims () {
 
         //calculate the height of the maze
         Matcher m = Pattern.compile("\r\n|\r|\n").matcher(mazeCode); //using matcher to not fill up gc with useless strings from .split();
-        while (m.find()) { mazeRows ++; } //increments every new line
+        while (m.find()) {
+            mazeRows++;
+        } //increments every new line
 
         //calculate thw width of the maze
         mazeCols = mazeCode.indexOf("\n"); //number of chars until newline char
         System.out.println("Maze Rows: " + mazeRows + "\nMaze Cols: " + mazeCols); //debug
     }
 
-    /** removes new line chars from the mazeCode string */
-    public static void cleanUpMazeCode() {
+        /** removes new line chars from the mazeCode string */
+        public static void cleanUpMazeCode () {
         mazeCode = mazeCode.replace("\n", "");
         System.out.println("\nEdited Maze Code: " + mazeCode); //debug
     }
+
+        public static int getMazeLength() {
+            return mazeRows*mazeCols;
+        }
 
 }

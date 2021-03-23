@@ -2,11 +2,17 @@ educanet/utils/FileUtils.java
  educanet.utils.FileUtils
 educanet/Shaders.java
  educanet.Shaders
+educanet/utils/MazeGen.java
+ educanet.utils.MazeGen
+educanet/utils/Color.java
+ educanet.utils.Color
 educanet/models/Square.java
  educanet.models.Square
+educanet/utils/ColorsList.java
+ educanet.utils.ColorsList
+educanet/shaders/Rainbow.java
+ educanet.shaders.Rainbow
 educanet/Game.java
  educanet.Game
 educanet/Main.java
  educanet.Main
-educanet/utils/MazeGen.java
- educanet.utils.MazeGen

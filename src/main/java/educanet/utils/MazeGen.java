@@ -1,5 +1,6 @@
 package educanet.utils;
 
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -104,6 +105,7 @@ public class MazeGen {
                 if(y==0 || y==mazeSize-1) continue;
                 for(int x = 0; x < mazeSize; x++) {
                     if(x==0 || x==mazeSize-1) continue;
+
 
                     if(mazeMap[x][y] == WALL) {
                         code.append("0");
